@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meisterstück</title>
+<style>
+  :root { --bg:#f4f5f7; --card:#fff; --text:#1c1f23; --muted:#6b7280; --accent:#0a6cff; --border:#e2e5ea; --ok:#12805c; --err:#c0392b; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#14161a; --card:#1e2127; --text:#eceef1; --muted:#9aa3af; --accent:#4b94ff; --border:#2d323a; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font:15px/1.45 system-ui,-apple-system,Segoe UI,sans-serif; background:var(--bg); color:var(--text); }
+  header { display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; padding:14px 16px; border-bottom:1px solid var(--border); background:var(--card); position:sticky; top:0; z-index:2; }
+  h1 { font-size:18px; margin:0; }
+  main { max-width:1000px; margin:0 auto; padding:16px; }
+  h2 { font-size:13px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin:24px 0 10px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px; }
+  .card h3 { margin:0 0 2px; font-size:16px; }
+  .meta { color:var(--muted); font-size:12px; margin-bottom:8px; }
+  .states { font-size:13px; margin:8px 0; }
+  .states div { display:flex; justify-content:space-between; gap:8px; }
+  .states span:first-child { color:var(--muted); }
+  .btns { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  button { font:inherit; padding:7px 12px; border-radius:8px; border:1px solid var(--border); background:var(--card); color:var(--text); cursor:pointer; }
+  button:hover { border-color:var(--accent); }
+  button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+  input, select { font:inherit; padding:9px 10px; border-radius:8px; border:1px solid var(--border); background:var(--card); color:var(--text); width:100%; }
+  input[type=range] { padding:0; }
+  label { display:block; margin:10px 0 4px; font-size:13px; color:var(--muted); }
+  #login { max-width:360px; margin:60px auto; }
+  #err { color:var(--err); margin-top:10px; min-height:1.2em; }
+  #log { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:10px 12px; max-height:240px; overflow:auto; font:12px/1.5 ui-monospace,Menlo,monospace; }
+  #log div { border-bottom:1px solid var(--border); padding:2px 0; }
+  .dot { display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--muted); margin-right:6px; }
+  .dot.live { background:var(--ok); }
+  .hidden { display:none; }
+  .toast { position:fixed; bottom:16px; left:50%; transform:translateX(-50%); background:var(--text); color:var(--bg); padding:8px 14px; border-radius:8px; font-size:13px; opacity:0; transition:opacity .2s; pointer-events:none; }
+  .toast.show { opacity:1; }
+  /* Lichtwert (Sunis io): Mond / Wolken / Sonne */
+  :root { --sun:#e8920c; --moon:#5b6b9a; --cloud:#8b95a7; --star:#5b6b9a; --dev-frame:#fafbfc; --dev-frame-edge:#cfd4db; --dev-plate:#e9ecf0; --dev-plate-edge:#bfc5cd; --dev-texture:#c9ced6; --dev-btn:#8b919a; --dev-glyph:#ffffff; --dev-glyph-edge:#98a0aa; }
+  @media (prefers-color-scheme: dark) { :root { --sun:#ffc247; --moon:#dfe6f7; --cloud:#aeb8c9; --star:#dfe6f7; --dev-frame:#dfe3e8; --dev-frame-edge:#8c939d; --dev-plate:#cdd2d9; --dev-plate-edge:#7d848e; --dev-texture:#aeb4bd; --dev-btn:#5f656e; --dev-glyph:#ffffff; --dev-glyph-edge:#6f7680; } }
+  .light { display:flex; align-items:center; gap:16px; }
+  .scene { width:112px; height:112px; flex:none; }
+  .scene g { opacity:0; transition:opacity .6s ease; }
+  .light[data-mode="sun"] #gSun, .light[data-mode="clouds"] #gClouds, .light[data-mode="moon"] #gMoon { opacity:1; }
+  #rays { transform-origin:60px 60px; animation:spin 60s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { #rays { animation:none; } .scene g { transition:none; } }
+  .lux { font-size:34px; font-weight:650; line-height:1.1; font-variant-numeric:tabular-nums; }
+  .lux-label { font-size:15px; margin-top:2px; }
+  /* Wandtaster (Smoove 4) */
+  .top { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; align-items:start; }
+  .top section { min-width:0; }
+  .remote { display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .smoove { width:min(100%,240px); height:auto; filter:drop-shadow(0 6px 10px rgba(0,0,0,.14)); }
+  .dev-frame { fill:var(--dev-frame); stroke:var(--dev-frame-edge); stroke-width:1; }
+  .dev-plate { fill:var(--dev-plate); }
+  .dev-plate-edge { stroke:var(--dev-plate-edge); stroke-width:1.5; }
+  .ch, .key { cursor:pointer; outline:none; }
+  .hit, .ch-hit { fill:transparent; }
+  .ch-dot { fill:var(--dev-btn); stroke:var(--dev-glyph-edge); stroke-width:1; transition:fill .2s; }
+  .ch[aria-pressed="true"] .ch-dot { fill:var(--accent); filter:drop-shadow(0 0 3px var(--accent)); }
+  .ch.empty { opacity:.35; }
+  .glyph { fill:none; stroke:var(--dev-glyph); stroke-width:4; stroke-linecap:round; stroke-linejoin:round; }
+  .glyph-edge { fill:none; stroke:var(--dev-glyph-edge); stroke-width:6.5; stroke-linecap:round; stroke-linejoin:round; }
+  .my { font:italic 700 27px "Trebuchet MS",system-ui,sans-serif; fill:var(--dev-glyph); stroke:var(--dev-glyph-edge); stroke-width:1.6; paint-order:stroke; text-anchor:middle; }
+  .tx { fill:none; stroke:var(--dev-glyph-edge); stroke-width:1.2; }
+  .tx.on { fill:var(--accent); stroke:var(--accent); }
+  .key:active .glyph, .key:active .my { opacity:.6; }
+  .key:focus-visible .hit, .ch:focus-visible .ch-hit { stroke:var(--accent); stroke-width:2; }
+  .ch-list { display:grid; gap:6px; width:100%; font-size:13px; }
+  .ch-row { display:grid; grid-template-columns:20px minmax(0,1fr); gap:8px; align-items:center; }
+  .ch-row b { color:var(--muted); font-weight:600; }
+  .ch-row select { padding:6px 8px; font-size:13px; }
+</style>
+</head>
+<body>
+
+<section id="login" class="card hidden">
+  <h1>TaHoma verbinden</h1>
+  <p class="meta">Verbinde dich direkt mit deiner TaHoma im lokalen Netz (Developer Mode). Internet wird nicht gebraucht.</p>
+  <form id="loginForm">
+    <label for="user">Adresse der TaHoma</label>
+    <input id="user" type="text" inputmode="decimal" autocomplete="off" autocapitalize="none" placeholder="zum Beispiel 192.168.8.20" required>
+    <label for="pass">Token</label>
+    <input id="pass" type="password" autocomplete="off" autocapitalize="none" required>
+    <div class="btns"><button class="primary" type="submit">Anmelden</button></div>
+    <div id="err"></div>
+  </form>
+  <p class="meta" style="margin-top:14px">Die IP-Adresse zeigt dein Router an. Den Token erzeugst du in der TaHoma-App im Developer Mode.</p>
+</section>
+
+<div id="app" class="hidden">
+  <header>
+    <h1>Meisterstück</h1>
+    <div>
+      <span id="liveLabel"><span class="dot" id="liveDot"></span><span id="liveText">Verbinde…</span></span>
+      <button id="refresh">Aktualisieren</button>
+      <button id="logout">Abmelden</button>
+    </div>
+  </header>
+  <main>
+    <div class="top">
+    <section>
+    <h2>Licht</h2>
+    <div id="light" class="card light" data-mode="none">
+      <svg class="scene" viewBox="0 0 120 120" role="img" aria-label="Lichtverhältnisse">
+        <defs>
+          <mask id="moonMask"><rect width="120" height="120" fill="#fff"/><circle cx="76" cy="46" r="24" fill="#000"/></mask>
+        </defs>
+        <g id="gSun">
+          <g id="rays" style="stroke:var(--sun)" stroke-width="5" stroke-linecap="round">
+            <line x1="60" y1="14" x2="60" y2="24"/><line x1="60" y1="96" x2="60" y2="106"/>
+            <line x1="14" y1="60" x2="24" y2="60"/><line x1="96" y1="60" x2="106" y2="60"/>
+            <line x1="27.5" y1="27.5" x2="34.5" y2="34.5"/><line x1="85.5" y1="85.5" x2="92.5" y2="92.5"/>
+            <line x1="27.5" y1="92.5" x2="34.5" y2="85.5"/><line x1="85.5" y1="34.5" x2="92.5" y2="27.5"/>
+          </g>
+          <circle cx="60" cy="60" r="24" style="fill:var(--sun)"/>
+        </g>
+        <g id="gClouds" style="fill:var(--cloud)">
+          <circle cx="46" cy="70" r="16"/><circle cx="68" cy="62" r="21"/><circle cx="88" cy="72" r="13"/>
+          <rect x="34" y="70" width="66" height="16" rx="8"/>
+        </g>
+        <g id="gMoon">
+          <circle cx="60" cy="62" r="32" style="fill:var(--moon)" mask="url(#moonMask)"/>
+          <circle cx="92" cy="26" r="2.5" style="fill:var(--star)"/><circle cx="102" cy="52" r="1.8" style="fill:var(--star)"/>
+          <circle cx="24" cy="30" r="2" style="fill:var(--star)"/><circle cx="36" cy="100" r="1.8" style="fill:var(--star)"/>
+        </g>
+      </svg>
+      <div>
+        <div id="lux" class="lux">–</div>
+        <div id="luxLabel" class="lux-label">Lichtwert wird geladen…</div>
+        <div id="luxDev" class="meta"></div>
+      </div>
+    </div>
+    </section>
+    <section>
+    <h2>Wandtaster</h2>
+    <div class="card remote">
+      <svg id="smoove" class="smoove" viewBox="0 0 240 240" role="group" aria-label="Smoove 4 Wandtaster">
+        <defs>
+          <pattern id="diamond" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <path d="M0 0H6M0 0V6" style="stroke:var(--dev-texture)" stroke-width="1" fill="none"/>
+          </pattern>
+        </defs>
+        <rect x="14" y="14" width="212" height="212" rx="7" class="dev-frame"/>
+        <rect x="60" y="60" width="120" height="120" rx="7" class="dev-plate"/>
+        <rect x="60" y="60" width="120" height="120" rx="7" fill="url(#diamond)" opacity=".75"/>
+        <rect x="60.75" y="60.75" width="118.5" height="118.5" rx="6.5" class="dev-plate-edge" fill="none"/>
+        <g class="ch" data-ch="0" tabindex="0" role="button" aria-label="Kanal 1"><circle class="ch-hit" cx="79" cy="77" r="11"/><circle class="ch-dot" cx="79" cy="77" r="6"/></g>
+        <g class="ch" data-ch="1" tabindex="0" role="button" aria-label="Kanal 2"><circle class="ch-hit" cx="79" cy="106" r="11"/><circle class="ch-dot" cx="79" cy="106" r="6"/></g>
+        <g class="ch" data-ch="2" tabindex="0" role="button" aria-label="Kanal 3"><circle class="ch-hit" cx="79" cy="134" r="11"/><circle class="ch-dot" cx="79" cy="134" r="6"/></g>
+        <g class="ch" data-ch="3" tabindex="0" role="button" aria-label="Kanal 4"><circle class="ch-hit" cx="79" cy="162" r="11"/><circle class="ch-dot" cx="79" cy="162" r="6"/></g>
+        <g class="key" data-key="up" tabindex="0" role="button" aria-label="Hoch">
+          <rect class="hit" x="98" y="66" width="48" height="36" rx="6"/>
+          <path class="glyph-edge" d="M110 92 L122 80 L134 92"/><path class="glyph" d="M110 92 L122 80 L134 92"/>
+        </g>
+        <g class="key" data-key="my" tabindex="0" role="button" aria-label="my, Lieblingsposition">
+          <rect class="hit" x="98" y="104" width="48" height="34" rx="6"/>
+          <text class="my" x="122" y="128">my</text>
+        </g>
+        <g class="key" data-key="down" tabindex="0" role="button" aria-label="Runter">
+          <rect class="hit" x="98" y="142" width="48" height="36" rx="6"/>
+          <path class="glyph-edge" d="M110 152 L122 164 L134 152"/><path class="glyph" d="M110 152 L122 164 L134 152"/>
+        </g>
+        <rect id="txLed" class="tx" x="156" y="152" width="8" height="8"/>
+      </svg>
+      <div id="chName" class="lux-label">Kanal 1</div>
+      <div id="chList" class="ch-list"></div>
+    </div>
+    </section>
+    </div>
+    <h2>Szenarien</h2>
+    <div id="scenarios" class="grid"></div>
+    <h2>Geräte</h2>
+    <div id="devices" class="grid"></div>
+    <h2>Live-Ereignisse</h2>
+    <div id="log"></div>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="native-shim.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+let devices = [];
+let es = null;
+
+const QUICK = ["open", "close", "stop", "my", "on", "off", "up", "down"];
+const STATE_LABELS = {
+  "core:ClosureState": "Position (geschlossen %)",
+  "core:OpenClosedState": "Zustand",
+  "core:NameState": "Name",
+  "core:BatteryState": "Batterie",
+  "core:OnOffState": "An/Aus",
+  "core:LuminanceState": "Helligkeit",
+  "core:TemperatureState": "Temperatur",
+  "core:RSSILevelState": "Funkpegel",
+};
+
+function toast(msg) {
+  const t = $("toast"); t.textContent = msg; t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2500);
+}
+
+async function api(path, opts) {
+  const res = await fetch(path, opts);
+  if (res.status === 401 && path !== "/api/login") { showLogin(); throw new Error("Nicht angemeldet"); }
+  if (!res.ok) {
+    let detail = res.statusText;
+    try { detail = (await res.json()).detail || detail; } catch (_e) {}
+    throw new Error(detail);
+  }
+  return res.json();
+}
+const post = (path, body) => api(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body || {}) });
+
+function showLogin() {
+  if (es) { es.close(); es = null; }
+  $("app").classList.add("hidden");
+  $("login").classList.remove("hidden");
+}
+function showApp() {
+  $("login").classList.add("hidden");
+  $("app").classList.remove("hidden");
+  loadAll();
+  startEvents();
+}
+
+function el(tag, attrs = {}, ...children) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "class") n.className = v;
+    else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
+    else n.setAttribute(k, v);
+  }
+  for (const c of children) n.append(c);
+  return n;
+}
+
+function fmt(v) {
+  if (v === null || v === undefined) return "–";
+  if (typeof v === "object") return JSON.stringify(v);
+  return String(v);
+}
+
+function renderDevice(d) {
+  const card = el("div", { class: "card", "data-url": d.device_url });
+  card.append(el("h3", {}, d.label || d.device_url));
+  card.append(el("div", { class: "meta" }, `${d.ui_class || "Gerät"} · ${d.widget}`));
+
+  const stBox = el("div", { class: "states" });
+  const shown = d.states.filter((s) => STATE_LABELS[s.name]);
+  for (const s of shown) {
+    stBox.append(el("div", { "data-state": s.name }, el("span", {}, STATE_LABELS[s.name]), el("span", {}, fmt(s.value))));
+  }
+  card.append(stBox);
+
+  const btns = el("div", { class: "btns" });
+  for (const c of QUICK.filter((c) => d.commands.includes(c))) {
+    btns.append(el("button", { onclick: () => sendCommand(d, c) }, c));
+  }
+  card.append(btns);
+
+  if (d.commands.includes("setClosure")) {
+    const cur = d.states.find((s) => s.name === "core:ClosureState");
+    const slider = el("input", { type: "range", min: 0, max: 100, value: cur ? Number(cur.value) || 0 : 0 });
+    const out = el("span", { class: "meta" }, `${slider.value}% geschlossen`);
+    slider.addEventListener("input", () => (out.textContent = `${slider.value}% geschlossen`));
+    slider.addEventListener("change", () => sendCommand(d, "setClosure", [Number(slider.value)]));
+    card.append(el("label", {}, "Position setzen"), slider, out);
+  }
+  return card;
+}
+
+async function sendCommand(d, command, parameters) {
+  try {
+    await post("/api/command", { device_url: d.device_url, command, parameters, label: `Web-App: ${command}` });
+    toast(`${d.label}: ${command} gesendet`);
+  } catch (e) { toast(e.message); }
+}
+
+async function loadAll() {
+  try {
+    const [devs, scs] = await Promise.all([api("/api/devices"), api("/api/scenarios")]);
+    devices = devs;
+    const dBox = $("devices"); dBox.textContent = "";
+    devices.forEach((d) => dBox.append(renderDevice(d)));
+    if (!devices.length) dBox.append(el("p", { class: "meta" }, "Keine Geräte gefunden."));
+    updateLight();
+    renderSmoove();
+
+    const sBox = $("scenarios"); sBox.textContent = "";
+    scs.forEach((s) => {
+      sBox.append(el("div", { class: "card" }, el("h3", {}, s.label),
+        el("div", { class: "btns" }, el("button", { class: "primary", onclick: async () => {
+          try { await post(`/api/scenarios/${encodeURIComponent(s.oid)}/execute`); toast(`Szenario „${s.label}“ gestartet`); }
+          catch (e) { toast(e.message); }
+        } }, "Ausführen"))));
+    });
+    if (!scs.length) sBox.append(el("p", { class: "meta" }, "In der lokalen Anbindung gibt es keine TaHoma-Szenarien."));
+  } catch (e) { toast(e.message); }
+}
+
+// Schwellen in Lux: darunter Mond, darüber Sonne, dazwischen Wolken.
+const LUX_MOON = 20;
+const LUX_SUN = 15000;
+
+function findLightDevice() {
+  const withLux = devices.filter((d) => d.states.some((s) => s.name === "core:LuminanceState"));
+  return withLux.find((d) => /sunis/i.test(`${d.label} ${d.widget}`)) || withLux[0] || null;
+}
+
+function updateLight() {
+  const card = $("light");
+  const d = findLightDevice();
+  if (!d) {
+    card.dataset.mode = "none";
+    $("lux").textContent = "–";
+    $("luxLabel").textContent = "Kein Lichtsensor gefunden";
+    $("luxDev").textContent = "";
+    return;
+  }
+  const lx = Number(d.states.find((s) => s.name === "core:LuminanceState").value) || 0;
+  const mode = lx < LUX_MOON ? "moon" : lx < LUX_SUN ? "clouds" : "sun";
+  card.dataset.mode = mode;
+  $("lux").textContent = `${Math.round(lx).toLocaleString("de-DE")} lx`;
+  $("luxLabel").textContent = { moon: "Dunkel, Nacht", clouds: "Bewölkt oder Dämmerung", sun: "Sonnig" }[mode];
+  $("luxDev").textContent = d.label;
+}
+
+function logLine(text) {
+  const log = $("log");
+  const t = new Date().toLocaleTimeString("de-DE");
+  log.prepend(el("div", {}, `${t}  ${text}`));
+  while (log.children.length > 100) log.lastChild.remove();
+}
+
+function applyStates(deviceUrl, states) {
+  const card = document.querySelector(`[data-url="${CSS.escape(deviceUrl)}"]`);
+  if (!card) return;
+  for (const s of states) {
+    const row = card.querySelector(`[data-state="${CSS.escape(s.name)}"] span:last-child`);
+    if (row) row.textContent = fmt(s.value);
+  }
+}
+
+function setLive(on, text) {
+  $("liveDot").classList.toggle("live", on);
+  $("liveText").textContent = text;
+}
+
+function startEvents() {
+  if (es) es.close();
+  es = new EventSource("/api/events");
+  es.addEventListener("ready", () => setLive(true, "Live"));
+  es.addEventListener("error", (ev) => {
+    if (ev.data) logLine("Fehler: " + JSON.parse(ev.data));
+    setLive(false, "Getrennt");
+  });
+  es.onmessage = (m) => {
+    const e = JSON.parse(m.data);
+    const dev = devices.find((d) => d.device_url === e.device_url);
+    const name = dev ? dev.label : (e.device_url || "");
+    const extra = e.device_states.map((s) => `${s.name}=${fmt(s.value)}`).join(", ");
+    logLine(`${e.name} ${name} ${e.new_state} ${extra}`.trim());
+    if (dev) {
+      for (const s of e.device_states) {
+        const known = dev.states.find((t) => t.name === s.name);
+        if (known) known.value = s.value; else dev.states.push(s);
+      }
+      updateLight();
+    }
+    if (e.device_url && e.device_states.length) applyStates(e.device_url, e.device_states);
+  };
+}
+
+// Wandtaster: Kanal wählen, dann hoch / my / runter.
+const CH_KEY = "meisterstueck.smoove.kanaele";
+let channels = [null, null, null, null];
+let activeCh = 0;
+
+function controllable() {
+  return devices.filter((d) => ["open", "close", "on", "off"].some((c) => d.commands.includes(c)));
+}
+
+function renderSmoove() {
+  const list = controllable();
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(CH_KEY) || "null"); } catch (_e) {}
+  channels = [0, 1, 2, 3].map((i) => {
+    const u = saved && saved[i];
+    if (u === "") return null;
+    if (u && list.some((d) => d.device_url === u)) return u;
+    return list[i] ? list[i].device_url : null;
+  });
+  const rows = $("chList"); rows.textContent = "";
+  channels.forEach((u, i) => {
+    const sel = el("select", { id: `chSel${i}`, "aria-label": `Kanal ${i + 1} zuweisen` });
+    sel.append(el("option", { value: "" }, "– nicht belegt –"));
+    list.forEach((d) => {
+      const o = el("option", { value: d.device_url }, d.label);
+      if (d.device_url === u) o.selected = true;
+      sel.append(o);
+    });
+    sel.addEventListener("change", () => {
+      channels[i] = sel.value || null;
+      try { localStorage.setItem(CH_KEY, JSON.stringify(channels.map((c) => c || ""))); } catch (_e) {}
+      paintSmoove();
+    });
+    rows.append(el("div", { class: "ch-row" }, el("b", {}, String(i + 1)), sel));
+  });
+  paintSmoove();
+}
+
+function paintSmoove() {
+  document.querySelectorAll("#smoove .ch").forEach((g) => {
+    const i = Number(g.dataset.ch);
+    g.setAttribute("aria-pressed", String(i === activeCh));
+    g.classList.toggle("empty", !channels[i]);
+  });
+  const d = devices.find((x) => x.device_url === channels[activeCh]);
+  $("chName").textContent = `Kanal ${activeCh + 1} · ${d ? d.label : "nicht belegt"}`;
+}
+
+function smooveKey(key) {
+  const d = devices.find((x) => x.device_url === channels[activeCh]);
+  if (!d) { toast("Dieser Kanal ist nicht belegt"); return; }
+  const cmd = { up: ["open", "on"], down: ["close", "off"], my: ["my"] }[key].find((c) => d.commands.includes(c));
+  if (!cmd) { toast(`${d.label} kennt diese Taste nicht`); return; }
+  const led = $("txLed");
+  led.classList.add("on");
+  setTimeout(() => led.classList.remove("on"), 700);
+  sendCommand(d, cmd);
+}
+
+function onActivate(node, fn) {
+  node.addEventListener("click", fn);
+  node.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fn(); }
+  });
+}
+document.querySelectorAll("#smoove .ch").forEach((g) => onActivate(g, () => { activeCh = Number(g.dataset.ch); paintSmoove(); }));
+document.querySelectorAll("#smoove .key").forEach((g) => onActivate(g, () => smooveKey(g.dataset.key)));
+
+$("loginForm").addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  $("err").textContent = "";
+  try {
+    await post("/api/login", { username: $("user").value, password: $("pass").value, region: "" });
+    $("pass").value = "";
+    showApp();
+  } catch (e) { $("err").textContent = e.message; }
+});
+$("refresh").addEventListener("click", loadAll);
+$("logout").addEventListener("click", async () => { await post("/api/logout"); showLogin(); });
+
+(async () => {
+  try { (await api("/api/status")).logged_in ? showApp() : showLogin(); }
+  catch (_e) { showLogin(); }
+})();
+</script>
+</body>
+</html>
