@@ -22,13 +22,13 @@ bei der Präsentation. Du baust die App-Datei (APK) einmalig mit GitHub und inst
    der mitgelieferten Datei `build-apk.yml.txt` einfügen.
 5. Oben auf **Actions** gehen. Der Bau startet von selbst (sonst „APK bauen“, dann **Run workflow**).
    Er dauert etwa 3 bis 5 Minuten.
-6. Wenn der Lauf grün ist: den Lauf öffnen und unten bei **Artifacts** `Meisterstueck-APK` herunterladen.
-   Die heruntergeladene ZIP enthält `app-debug.apk`.
+6. Wenn der Lauf grün ist: Auf der Startseite des Repositorys rechts auf **Releases** klicken und
+   dort **Meisterstueck.apk** herunterladen. Das geht auch direkt im Browser des Tablets.
 7. Wird der Lauf rot: den Fehlertext kopieren und mir schicken.
 
 ## Teil 3: Auf dem Fire-Tablet installieren
 
-1. Die `app-debug.apk` auf das Tablet bringen (zum Beispiel per USB-Kabel, E-Mail oder Cloud-Speicher).
+1. Die `Meisterstueck.apk` auf das Tablet bringen. Am einfachsten lädst du sie direkt im Browser des Tablets von der Release-Seite herunter.
 2. Auf dem Tablet unter **Einstellungen, Sicherheit und Datenschutz** das Installieren
    **aus unbekannten Quellen** für die App erlauben, mit der du die Datei öffnest (Dateimanager oder Silk).
 3. Die APK antippen und installieren. Danach erscheint **Meisterstück** bei den Apps.

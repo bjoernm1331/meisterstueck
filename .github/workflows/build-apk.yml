@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -33,3 +33,14 @@ jobs:
         with:
           name: Meisterstueck-APK
           path: app/build/outputs/apk/debug/app-debug.apk
+
+      - name: APK als Release veröffentlichen
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk Meisterstueck.apk
+          gh release create "build-${{ github.run_number }}" Meisterstueck.apk \
+            --title "Meisterstück Build ${{ github.run_number }}" \
+            --notes "APK für das Fire-Tablet. Zum Installieren Meisterstueck.apk herunterladen." \
+            --latest
