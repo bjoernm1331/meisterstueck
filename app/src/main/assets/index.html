@@ -5,18 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Meisterstück</title>
 <style>
-  :root { --bg:#f4f5f7; --card:#fff; --text:#1c1f23; --muted:#6b7280; --accent:#0a6cff; --border:#e2e5ea; --ok:#12805c; --err:#c0392b; }
-  @media (prefers-color-scheme: dark) {
-    :root { --bg:#14161a; --card:#1e2127; --text:#eceef1; --muted:#9aa3af; --accent:#4b94ff; --border:#2d323a; }
-  }
+  @font-face { font-family:"Lato"; font-weight:400; font-style:normal; font-display:swap; src:url("fonts/lato-latin-400-normal.woff2") format("woff2"); }
+  @font-face { font-family:"Lato"; font-weight:700; font-style:normal; font-display:swap; src:url("fonts/lato-latin-700-normal.woff2") format("woff2"); }
+  @font-face { font-family:"Lato"; font-weight:900; font-style:normal; font-display:swap; src:url("fonts/lato-latin-900-normal.woff2") format("woff2"); }
+  /* Meisterstück: Dunkelrot als Hauptfarbe, Gelb als Akzent, warmes Hellgrau, Schrift Lato */
+  :root { --red:#993333; --red-dark:#7d2828; --yellow:#f0c000; --bg:#f4f0ee; --card:#ffffff; --text:#1c1c1c; --muted:#6b6461; --accent:#993333; --border:#e4dcd8; --ok:#12805c; --err:#b3261e; color-scheme:light; }
   * { box-sizing: border-box; }
-  body { margin:0; font:15px/1.45 system-ui,-apple-system,Segoe UI,sans-serif; background:var(--bg); color:var(--text); }
-  header { display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; padding:14px 16px; border-bottom:1px solid var(--border); background:var(--card); position:sticky; top:0; z-index:2; }
-  h1 { font-size:18px; margin:0; }
+  body { margin:0; font:15px/1.45 "Lato",system-ui,-apple-system,Segoe UI,sans-serif; background:var(--bg); color:var(--text); }
+  header { display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; padding:10px 16px; background:var(--red); color:#f9f9f9; position:sticky; top:0; z-index:2; box-shadow:0 2px 8px rgba(0,0,0,.18); }
+  header .brand { display:flex; align-items:center; gap:12px; }
+  header h1 { font-size:20px; font-weight:700; margin:0; color:#f9f9f9; }
+  .logo { width:40px; height:40px; flex:none; }
+  header button { background:transparent; color:#f9f9f9; border-color:rgba(249,249,249,.55); }
+  header button:hover { background:rgba(255,255,255,.14); border-color:#f9f9f9; }
+  header .dot { background:rgba(249,249,249,.55); }
+  header .dot.live { background:#9be8b5; }
+  h1 { font-size:20px; margin:0; }
   main { max-width:1000px; margin:0 auto; padding:16px; }
-  h2 { font-size:13px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin:24px 0 10px; }
+  h2 { font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--red); margin:26px 0 12px; }
+  h2::after { content:""; display:block; width:36px; height:3px; background:var(--yellow); margin-top:6px; }
   .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px; }
-  .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px; box-shadow:0 1px 3px rgba(60,30,20,.06); }
   .card h3 { margin:0 0 2px; font-size:16px; }
   .meta { color:var(--muted); font-size:12px; margin-bottom:8px; }
   .states { font-size:13px; margin:8px 0; }
@@ -24,31 +33,36 @@
   .states span:first-child { color:var(--muted); }
   .btns { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
   button { font:inherit; padding:7px 12px; border-radius:8px; border:1px solid var(--border); background:var(--card); color:var(--text); cursor:pointer; }
-  button:hover { border-color:var(--accent); }
-  button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+  button { font-weight:700; }
+  button:hover { border-color:var(--red); }
+  button.primary { background:var(--red); color:#fff; border-color:var(--red); }
+  button.primary:hover { background:var(--red-dark); border-color:var(--red-dark); }
+  button:focus-visible, input:focus-visible, select:focus-visible { outline:2px solid var(--yellow); outline-offset:2px; }
   input, select { font:inherit; padding:9px 10px; border-radius:8px; border:1px solid var(--border); background:var(--card); color:var(--text); width:100%; }
-  input[type=range] { padding:0; }
+  input[type=range] { padding:0; accent-color:var(--red); }
   label { display:block; margin:10px 0 4px; font-size:13px; color:var(--muted); }
-  #login { max-width:360px; margin:60px auto; }
+  #login { max-width:380px; margin:60px auto; border-top:6px solid var(--red); }
+  #login .loginhead { display:flex; align-items:center; gap:12px; margin-bottom:6px; }
+  #login .loginhead .logo { width:52px; height:52px; }
+  #login h1 { color:var(--red); }
   #err { color:var(--err); margin-top:10px; min-height:1.2em; }
   #log { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:10px 12px; max-height:240px; overflow:auto; font:12px/1.5 ui-monospace,Menlo,monospace; }
   #log div { border-bottom:1px solid var(--border); padding:2px 0; }
   .dot { display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--muted); margin-right:6px; }
   .dot.live { background:var(--ok); }
   .hidden { display:none; }
-  .toast { position:fixed; bottom:16px; left:50%; transform:translateX(-50%); background:var(--text); color:var(--bg); padding:8px 14px; border-radius:8px; font-size:13px; opacity:0; transition:opacity .2s; pointer-events:none; }
+  .toast { position:fixed; bottom:16px; left:50%; transform:translateX(-50%); background:#2b2b2b; color:#f9f9f9; border-left:4px solid var(--yellow); padding:8px 14px; border-radius:8px; font-size:13px; opacity:0; transition:opacity .2s; pointer-events:none; }
   .toast.show { opacity:1; }
   /* Lichtwert (Sunis io): Mond / Wolken / Sonne */
-  :root { --sun:#e8920c; --moon:#5b6b9a; --cloud:#8b95a7; --star:#5b6b9a; --dev-frame:#fafbfc; --dev-frame-edge:#cfd4db; --dev-plate:#e9ecf0; --dev-plate-edge:#bfc5cd; --dev-texture:#c9ced6; --dev-btn:#8b919a; --dev-glyph:#ffffff; --dev-glyph-edge:#98a0aa; }
-  @media (prefers-color-scheme: dark) { :root { --sun:#ffc247; --moon:#dfe6f7; --cloud:#aeb8c9; --star:#dfe6f7; --dev-frame:#dfe3e8; --dev-frame-edge:#8c939d; --dev-plate:#cdd2d9; --dev-plate-edge:#7d848e; --dev-texture:#aeb4bd; --dev-btn:#5f656e; --dev-glyph:#ffffff; --dev-glyph-edge:#6f7680; } }
+  :root { --sun:#f0c000; --moon:#55607f; --cloud:#a9a29e; --star:#55607f; --dev-frame:#fafafa; --dev-frame-edge:#d3cdc9; --dev-plate:#ece9e7; --dev-plate-edge:#c2bbb7; --dev-texture:#cdc7c3; --dev-btn:#8d8683; --dev-glyph:#ffffff; --dev-glyph-edge:#9a938f; }
   .light { display:flex; align-items:center; gap:16px; }
   .scene { width:112px; height:112px; flex:none; }
-  .scene g { opacity:0; transition:opacity .6s ease; }
+  .scene > g { opacity:0; transition:opacity .6s ease; }
   .light[data-mode="sun"] #gSun, .light[data-mode="clouds"] #gClouds, .light[data-mode="moon"] #gMoon { opacity:1; }
   #rays { transform-origin:60px 60px; animation:spin 60s linear infinite; }
   @keyframes spin { to { transform:rotate(360deg); } }
-  @media (prefers-reduced-motion: reduce) { #rays { animation:none; } .scene g { transition:none; } }
-  .lux { font-size:34px; font-weight:650; line-height:1.1; font-variant-numeric:tabular-nums; }
+  @media (prefers-reduced-motion: reduce) { #rays { animation:none; } .scene > g { transition:none; } }
+  .lux { font-size:36px; font-weight:900; color:var(--red); line-height:1.1; font-variant-numeric:tabular-nums; }
   .lux-label { font-size:15px; margin-top:2px; }
   /* Wandtaster (Smoove 4) */
   .top { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; align-items:start; }
@@ -61,13 +75,13 @@
   .ch, .key { cursor:pointer; outline:none; }
   .hit, .ch-hit { fill:transparent; }
   .ch-dot { fill:var(--dev-btn); stroke:var(--dev-glyph-edge); stroke-width:1; transition:fill .2s; }
-  .ch[aria-pressed="true"] .ch-dot { fill:var(--accent); filter:drop-shadow(0 0 3px var(--accent)); }
+  .ch[aria-pressed="true"] .ch-dot { fill:var(--red); filter:drop-shadow(0 0 3px rgba(153,51,51,.7)); }
   .ch.empty { opacity:.35; }
   .glyph { fill:none; stroke:var(--dev-glyph); stroke-width:4; stroke-linecap:round; stroke-linejoin:round; }
   .glyph-edge { fill:none; stroke:var(--dev-glyph-edge); stroke-width:6.5; stroke-linecap:round; stroke-linejoin:round; }
   .my { font:italic 700 27px "Trebuchet MS",system-ui,sans-serif; fill:var(--dev-glyph); stroke:var(--dev-glyph-edge); stroke-width:1.6; paint-order:stroke; text-anchor:middle; }
   .tx { fill:none; stroke:var(--dev-glyph-edge); stroke-width:1.2; }
-  .tx.on { fill:var(--accent); stroke:var(--accent); }
+  .tx.on { fill:var(--yellow); stroke:var(--yellow); }
   .key:active .glyph, .key:active .my { opacity:.6; }
   .key:focus-visible .hit, .ch:focus-visible .ch-hit { stroke:var(--accent); stroke-width:2; }
   .ch-list { display:grid; gap:6px; width:100%; font-size:13px; }
@@ -78,8 +92,25 @@
 </head>
 <body>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="logo" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="14" fill="#f4f0ee"/>
+      <rect x="14" y="11" width="36" height="11" rx="3" fill="#993333"/>
+      <circle cx="32" cy="16.5" r="3" fill="none" stroke="#f4f0ee" stroke-width="1.4"/>
+      <rect x="16" y="22" width="32" height="30" fill="#f4f0ee"/>
+      <path d="M17 26H47M17 30H47" stroke="#993333" stroke-width="1.4"/>
+      <rect x="17" y="33" width="30" height="8" fill="#555"/>
+      <rect x="17" y="41" width="30" height="11" fill="#fff"/>
+      <path d="M17 44H47M17 47.5H47M22 41V52M27 41V52M32 41V52M37 41V52M42 41V52" stroke="#555" stroke-width=".8"/>
+      <rect x="14" y="22" width="4" height="31" rx="1" fill="#2b2b2b"/>
+      <rect x="46" y="22" width="4" height="31" rx="1" fill="#2b2b2b"/>
+    </symbol>
+  </defs>
+</svg>
 <section id="login" class="card hidden">
-  <h1>TaHoma verbinden</h1>
+  <div class="loginhead"><svg class="logo" aria-hidden="true"><use href="#logo"/></svg><h1>Meisterstück</h1></div>
+  <p class="meta" style="font-weight:700;color:var(--red)">TaHoma verbinden</p>
   <p class="meta">Verbinde dich direkt mit deiner TaHoma im lokalen Netz (Developer Mode). Internet wird nicht gebraucht.</p>
   <form id="loginForm">
     <label for="user">Adresse der TaHoma</label>
@@ -94,7 +125,7 @@
 
 <div id="app" class="hidden">
   <header>
-    <h1>Meisterstück</h1>
+    <div class="brand"><svg class="logo" aria-hidden="true"><use href="#logo"/></svg><h1>Meisterstück</h1></div>
     <div>
       <span id="liveLabel"><span class="dot" id="liveDot"></span><span id="liveText">Verbinde…</span></span>
       <button id="refresh">Aktualisieren</button>
